@@ -1,0 +1,165 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2708
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 Sub Multi_Year_Stock_Data():\
+\
+' Define Everything\
+\
+    Dim Ticker As String\
+    \
+    Dim Year_Open As Double\
+    \
+    Dim Year_Close As Double\
+    \
+    Dim i As Long\
+       \
+    Dim Row As Long\
+    \
+    Dim Yearly_Change As Double\
+    \
+    Dim Percent_Change As Double\
+        \
+    Dim Total_Stock_Volume As Double\
+        \
+    Dim Summary_Table_Row As Double\
+    \
+    Dim ws As Worksheet\
+    \
+' Set headers for all new columns created and set Values\
+For Each ws In Worksheets:\
+\
+    ws.Range("L1").Value = "Ticker"\
+    \
+    ws.Range("M1").Value = "Yearly Change"\
+    \
+    ws.Range("N1").Value = "Percent Change"\
+    \
+    ws.Range("O1").Value = "Total Stock Volume"\
+    \
+    ws.Range("S1").Value = "Ticker"\
+    \
+    ws.Range("T1").Value = "Value"\
+\
+    ws.Range("R2").Value = "Greatest % Increase"\
+    \
+    ws.Range("R3").Value = "Greatest % Decrease"\
+    \
+    ws.Range("R4").Value = "Greatest Total Stock Volume"\
+    \
+    Total_Stock_Volume = 0\
+    \
+    Summary_Table_Row = 2\
+    \
+    Row = ws.Cells(Rows.Count, "A").End(xlUp).Row\
+    \
+' Loops through and calculate data\
+\
+    For i = 2 To Row\
+    \
+            If ws.Cells(i, 1).Value <> Cells(i + 1, 1).Value Then\
+        \
+                Ticker = ws.Cells(i, 1).Value\
+        \
+                Total_Stock_Volume = Total_Stock_Volume + ws.Cells(i, 7).Value\
+                \
+                Year_Close = ws.Cells(i, 6).Value\
+            \
+                Yearly_Change = (Year_Close - Year_Open)\
+                \
+                Percent_Change = (Yearly_Change) / Year_Open\
+                \
+\
+' Defines the placement of new values calculated in the For Loop\
+\
+        ws.Range("L" & Summary_Table_Row).Value = Ticker\
+        \
+        ws.Range("M" & Summary_Table_Row).Value = Yearly_Change\
+        \
+        ws.Range("M" & Summary_Table_Row).NumberFormat = "$ 0.00"\
+        \
+        ws.Range("N" & Summary_Table_Row).Value = Percent_Change\
+        \
+        ws.Range("N" & Summary_Table_Row).NumberFormat = "0.00 %"\
+        \
+        ws.Range("O" & Summary_Table_Row).Value = Total_Stock_Volume\
+        \
+        Summary_Table_Row = Summary_Table_Row + 1\
+            \
+            Total_Stock_Volume = 0\
+            \
+            Yearly_Change = 0\
+            \
+            Percent_Change = 0\
+        \
+        ElseIf ws.Cells(i, 1).Value <> Cells(i - 1, 1).Value Then\
+        \
+                Total_Stock_Volume = Total_Stock_Volume + Cells(i, 7).Value\
+            \
+                Year_Open = ws.Cells(i, 3).Value\
+                \
+        Else\
+        \
+        Total_Stock_Volume = Total_Stock_Volume + Cells(i, 7).Value\
+            \
+        End If\
+        \
+    Next i\
+    \
+    \
+'Conditional formatting, positive is green & negative is red, this is for yearly_change and percent_change\
+\
+If ws.Cells(i, 13).Value > 0 Then\
+\
+                    ws.Cells(i, 13).Interior.Color = vbGreen\
+                    \
+                ElseIf ws.Cells(i, 13).Value < 0 Then\
+                \
+                    ws.Cells(i, 13).Interior.Color = vbRed\
+                    \
+            End If\
+            \
+            If ws.Cells(i, 14).Value > 0 Then\
+            \
+                    ws.Cells(i, 14).Interior.Color = vbGreen\
+                    \
+                ElseIf ws.Cells(i, 14).Value < 0 Then\
+                \
+                    ws.Cells(i, 14).Interior.Color = vbRed\
+                    \
+            End If\
+\
+    \
+' Scans appropriate columns to find values for functionality\
+\
+        ws.Range("T2") = "%" & WorksheetFunction.Max(ws.Range("N2:N" & Row)) * 100\
+        \
+        ws.Range("T3") = "%" & WorksheetFunction.Min(ws.Range("N2:N" & Row)) * 100\
+        \
+        ws.Range("T4") = WorksheetFunction.Max(ws.Range("O2:O" & Row))\
+        \
+' Finds funtionality values\
+\
+        greatest_percent_increase = WorksheetFunction.Match(WorksheetFunction.Max(ws.Range("N2:N" & Row)), ws.Range("N2:N" & Row), 0)\
+        \
+        greatest_percent_decrease = WorksheetFunction.Match(WorksheetFunction.Min(ws.Range("N2:N" & Row)), ws.Range("N2:N" & Row), 0)\
+        \
+        greatest_total_volume = WorksheetFunction.Match(WorksheetFunction.Max(ws.Range("O2:O" & Row)), ws.Range("O2:O" & Row), 0)\
+        \
+' Places functional values in appropriate column\
+\
+        ws.Range("S2") = ws.Cells(greatest_percent_increase + 1, 12)\
+        \
+        ws.Range("S3") = ws.Cells(greatest_percent_decrease + 1, 12)\
+        \
+        ws.Range("S4") = ws.Cells(greatest_total_volume + 1, 12)\
+        \
+        \
+        Next ws\
+\
+End Sub\
+\
+}
